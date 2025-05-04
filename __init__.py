@@ -42,14 +42,14 @@ class MassAddWindow(QDialog):
         self.processor_text.setMaxLength(1)
         self.processor_text.setFixedWidth(60)
         self.processor_button = QPushButton(mw)
-        self.processor_button.setText("Split")
+        self.processor_button.setText("Split 🔰")
         self.processor_button.clicked.connect(self.split_text)
         self.processor_layout.addWidget(self.processor_label)
         self.processor_layout.addWidget(self.processor_text)
         self.processor_layout.addWidget(self.processor_button)
         self.processor_widget.setLayout(self.processor_layout)
 
-        self.submit_button.setText("Add")
+        self.submit_button.setText("Add 🚀")
         self.submit_button.clicked.connect(self.add_current_sentences)
 
         layout.addWidget(self.model_widget)
