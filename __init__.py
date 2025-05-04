@@ -60,8 +60,8 @@ class MassAddWindow(QDialog):
 
         self.setLayout(layout)
         self.setWindowTitle("MassAdd")
-        self.setMinimumHeight(300)
-        self.setMinimumWidth(400)
+        self.setMinimumHeight(400)
+        self.setMinimumWidth(500)
 
     def show_window(self):
         if self.submit_button is None:
@@ -90,23 +90,40 @@ class MassAddWindow(QDialog):
             showInfo("Selected notetype has no fields.")
             return
 
+        # Get the list of field names for the selected notetype
+        field_names = [fld["name"] for fld in m["flds"]]
 
-        # Use the first field of note as this is required to be non-blank by anki
-        field = m["flds"][0]["name"]
-        sentences = self.text_edit.toPlainText().split("\n")
+        # Split the input text into lines (each line is a note)
+        lines = self.text_edit.toPlainText().split("\n")
 
-        mw.progress.start(label="Adding notes...", max=len(sentences))
-        for idx, s in enumerate(sentences):
+        # Remove empty lines
+        lines = [line for line in lines if line.strip()]
+
+        mw.progress.start(label="Adding notes...", max=len(lines))
+        for idx, line in enumerate(lines):
+
+            # Split the line into values based on tabs
+            values = line.split("\t")
+
             note = Note(mw.col, m)
-            note[field] = s.strip()
+
+            # Assign values to fields
+            for i, field_name in enumerate(field_names):
+                if i < len(values):
+                    # If there are less fields than values, ignore those values
+                    note[field_name] = values[i].strip()
+                else:
+                    # If there are more fields than values, assign an empty string
+                    note[field_name] = ""
+
             note.model()["did"] = deck_id
             mw.col.addNote(note)
             mw.progress.update(value=idx + 1)
+
         mw.progress.finish()
         mw.reset()
-        showInfo(f"{len(sentences)} notes added.")
+        showInfo(f"{len(lines)} notes added.")
         self.text_edit.clear()
-
 
 
 MAWindow = MassAddWindow()
