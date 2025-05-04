@@ -19,4 +19,4 @@ of 'sentence mining' when learning a foreign language.
 
 ### Update Info
   - Compatible with Anki version 25
-  - Lines must be separated by tabs.
+  - Each word in a line must be separated by tabs
