@@ -16,3 +16,6 @@ of 'sentence mining' when learning a foreign language.
    use the 'Add' button to seperate the text into new lines based on a specific
    character, for example you may want to use a full-stop (.) or a comma(,).
  - Click 'submit' and the cards will be created.
+
+### Update Info
+  - Compatible with Anki version 25

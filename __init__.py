@@ -7,7 +7,7 @@ from aqt.qt import *
 
 class MassAddWindow(QDialog):
     def __init__(self) -> None:
-        QDialog.__init__(self, None, Qt.Window)
+        QDialog.__init__(self, None, Qt.WindowType.Window)
         self.deck_widget = None
         self.model_widget = None
         self.text_edit = None
@@ -22,6 +22,7 @@ class MassAddWindow(QDialog):
 
     def setup_ui(self):
         layout = QVBoxLayout()
+
         self.deck_widget = QWidget(mw)
         self.model_widget = QWidget(mw)
         self.text_edit = QTextEdit(mw)
@@ -65,34 +66,47 @@ class MassAddWindow(QDialog):
     def show_window(self):
         if self.submit_button is None:
             self.setup_ui()
-        self.text_edit.setText("")
+        self.text_edit.clear()
         self.show()
 
     def split_text(self):
         text = self.text_edit.toPlainText()
         split_marker = self.processor_text.text()
 
-        new_text = (split_marker + "\n").join(text.split(split_marker))
-        self.text_edit.setText(new_text)
+        if split_marker:
+            new_text = (split_marker + "\n").join(text.split(split_marker))
+            self.text_edit.setText(new_text)
         self.processor_text.clear()
 
     def add_current_sentences(self):
         deck_id = self.deck_chooser.selectedId()
         model_id = self.model_chooser.selected_notetype_id
+        if not model_id:
+            showInfo("Please select a notetype.")
+            return
+
         m = mw.col.models.get(model_id)
+        if not m or not m["flds"]:
+            showInfo("Selected notetype has no fields.")
+            return
+
 
         # Use the first field of note as this is required to be non-blank by anki
         field = m["flds"][0]["name"]
-
         sentences = self.text_edit.toPlainText().split("\n")
 
-        for s in sentences:
+        mw.progress.start(label="Adding notes...", max=len(sentences))
+        for idx, s in enumerate(sentences):
             note = Note(mw.col, m)
             note[field] = s.strip()
             note.model()["did"] = deck_id
             mw.col.addNote(note)
+            mw.progress.update(value=idx + 1)
+        mw.progress.finish()
+        mw.reset()
+        showInfo(f"{len(sentences)} notes added.")
+        self.text_edit.clear()
 
-        showInfo('Done')
 
 
 MAWindow = MassAddWindow()
